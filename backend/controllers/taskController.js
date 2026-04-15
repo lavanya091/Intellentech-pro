@@ -1,11 +1,12 @@
 const Task = require('../models/Task');
 const Project = require('../models/Project');
 const logActivity = require('../utils/logger');
+const asyncHandler = require('../middleware/asyncHandler');
 
 // @desc    Get all tasks
 // @route   GET /api/tasks
 // @access  Private
-exports.getTasks = async (req, res, next) => {
+exports.getTasks = asyncHandler(async (req, res, next) => {
   let query;
 
   if (req.user.role === 'Admin') {
@@ -22,12 +23,12 @@ exports.getTasks = async (req, res, next) => {
 
   const tasks = await query;
   res.status(200).json({ success: true, count: tasks.length, data: tasks });
-};
+});
 
 // @desc    Create task
 // @route   POST /api/tasks
 // @access  Private/Manager
-exports.createTask = async (req, res, next) => {
+exports.createTask = asyncHandler(async (req, res, next) => {
   const project = await Project.findById(req.body.project);
 
   if (!project) {
@@ -44,12 +45,12 @@ exports.createTask = async (req, res, next) => {
   await logActivity(req.user, 'Task Created', 'Task', task._id, `Manager created task ${task.title}`);
 
   res.status(201).json({ success: true, data: task });
-};
+});
 
 // @desc    Update task (Status, assignment, comments)
 // @route   PUT /api/tasks/:id
 // @access  Private
-exports.updateTask = async (req, res, next) => {
+exports.updateTask = asyncHandler(async (req, res, next) => {
   let task = await Task.findById(req.params.id);
 
   if (!task) {
@@ -91,4 +92,4 @@ exports.updateTask = async (req, res, next) => {
   await logActivity(req.user, 'Task Updated', 'Task', task._id, `${req.user.role} updated task ${task.title}`);
 
   res.status(200).json({ success: true, data: task });
-};
+});

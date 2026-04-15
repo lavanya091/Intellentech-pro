@@ -1,10 +1,11 @@
 const Project = require('../models/Project');
 const logActivity = require('../utils/logger');
+const asyncHandler = require('../middleware/asyncHandler');
 
 // @desc    Get all projects
 // @route   GET /api/projects
 // @access  Private (Admin see all, Manager see own)
-exports.getProjects = async (req, res, next) => {
+exports.getProjects = asyncHandler(async (req, res, next) => {
   let query;
 
   if (req.user.role === 'Admin') {
@@ -17,12 +18,12 @@ exports.getProjects = async (req, res, next) => {
 
   const projects = await query;
   res.status(200).json({ success: true, count: projects.length, data: projects });
-};
+});
 
 // @desc    Create project
 // @route   POST /api/projects
 // @access  Private/Manager
-exports.createProject = async (req, res, next) => {
+exports.createProject = asyncHandler(async (req, res, next) => {
   req.body.manager = req.user.id;
 
   const project = await Project.create(req.body);
@@ -30,12 +31,12 @@ exports.createProject = async (req, res, next) => {
   await logActivity(req.user, 'Project Created', 'Project', project._id, `Manager created project ${project.name}`);
   
   res.status(201).json({ success: true, data: project });
-};
+});
 
 // @desc    Update project
 // @route   PUT /api/projects/:id
 // @access  Private/Manager
-exports.updateProject = async (req, res, next) => {
+exports.updateProject = asyncHandler(async (req, res, next) => {
   let project = await Project.findById(req.params.id);
 
   if (!project) {
@@ -55,4 +56,4 @@ exports.updateProject = async (req, res, next) => {
   await logActivity(req.user, 'Project Updated', 'Project', project._id, `Manager updated project ${project.name}`);
 
   res.status(200).json({ success: true, data: project });
-};
+});

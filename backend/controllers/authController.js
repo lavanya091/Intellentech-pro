@@ -2,11 +2,12 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 const logActivity = require('../utils/logger');
+const asyncHandler = require('../middleware/asyncHandler');
 
 // @desc    Login user
 // @route   POST /api/auth/login
 // @access  Public
-exports.login = async (req, res, next) => {
+exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
   // Validate email & password
@@ -34,20 +35,20 @@ exports.login = async (req, res, next) => {
   }
 
   sendTokenResponse(user, 200, res);
-};
+});
 
 // @desc    Get current logged in user
 // @route   GET /api/auth/me
 // @access  Private
-exports.getMe = async (req, res, next) => {
+exports.getMe = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.id);
   res.status(200).json({ success: true, data: user });
-};
+});
 
 // @desc    Forgot password
 // @route   POST /api/auth/forgotpassword
 // @access  Public
-exports.forgotPassword = async (req, res, next) => {
+exports.forgotPassword = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
 
   if (!user) {
@@ -85,12 +86,12 @@ exports.forgotPassword = async (req, res, next) => {
 
     return res.status(500).json({ success: false, message: 'Email could not be sent' });
   }
-};
+});
 
 // @desc    Reset password
 // @route   PUT /api/auth/resetpassword/:resettoken
 // @access  Public
-exports.resetPassword = async (req, res, next) => {
+exports.resetPassword = asyncHandler(async (req, res, next) => {
   // Get hashed token
   const resetPasswordToken = crypto.createHash('sha256').update(req.params.resettoken).digest('hex');
 
@@ -112,12 +113,12 @@ exports.resetPassword = async (req, res, next) => {
   await logActivity(user, 'Password Reset', 'User', user._id, 'User reset their password');
 
   sendTokenResponse(user, 200, res);
-};
+});
 
 // @desc    Update user details (name/password for Developer)
 // @route   PUT /api/auth/updatedetails
 // @access  Private
-exports.updateDetails = async (req, res, next) => {
+exports.updateDetails = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.id);
 
   if (req.body.name) user.name = req.body.name;
@@ -128,7 +129,7 @@ exports.updateDetails = async (req, res, next) => {
   await logActivity(user, 'Profile Update', 'User', user._id, 'User updated their profile details');
 
   sendTokenResponse(user, 200, res);
-};
+});
 
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {

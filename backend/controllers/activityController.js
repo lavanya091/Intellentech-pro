@@ -1,10 +1,11 @@
 const ActivityLog = require('../models/ActivityLog');
 const Project = require('../models/Project');
+const asyncHandler = require('../middleware/asyncHandler');
 
 // @desc    Get activity logs
 // @route   GET /api/activity
 // @access  Private (Admin see all, Manager see project-related)
-exports.getActivityLogs = async (req, res, next) => {
+exports.getActivityLogs = asyncHandler(async (req, res, next) => {
   let filter = {};
 
   // Managers only see activity related to their own projects (all actions on those projects/tasks)
@@ -48,4 +49,4 @@ exports.getActivityLogs = async (req, res, next) => {
     .populate('user', 'name email');
 
   res.status(200).json({ success: true, count: logs.length, data: logs });
-};
+});
