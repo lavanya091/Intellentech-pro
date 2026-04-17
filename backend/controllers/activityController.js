@@ -40,8 +40,15 @@ exports.getActivityLogs = asyncHandler(async (req, res, next) => {
   // Date Range Filter
   if (req.query.startDate || req.query.endDate) {
     filter.timestamp = {};
-    if (req.query.startDate) filter.timestamp.$gte = new Date(req.query.startDate);
-    if (req.query.endDate) filter.timestamp.$lte = new Date(req.query.endDate);
+    if (req.query.startDate) {
+      filter.timestamp.$gte = new Date(req.query.startDate);
+    }
+    if (req.query.endDate) {
+      const endDate = new Date(req.query.endDate);
+      // Set to the very end of the day in UTC to make the filter inclusive
+      endDate.setUTCHours(23, 59, 59, 999);
+      filter.timestamp.$lte = endDate;
+    }
   }
 
   const logs = await ActivityLog.find(filter)
