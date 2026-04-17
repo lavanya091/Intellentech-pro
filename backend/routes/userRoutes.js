@@ -11,7 +11,7 @@ router.get('/stats', authorize('Admin'), getStats);
 
 router
   .route('/')
-  .get(authorize('Admin'), getUsers)
+  .get(authorize('Admin', 'Manager'), getUsers)
   .post(authorize('Admin'), createUser);
 
 router

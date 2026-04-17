@@ -9,7 +9,14 @@ const asyncHandler = require('../middleware/asyncHandler');
 // @route   GET /api/users
 // @access  Private/Admin
 exports.getUsers = asyncHandler(async (req, res, next) => {
-  const users = await User.find();
+  let query = {};
+
+  // If Manager, only show Developers to prevent managing other Managers/Admins
+  if (req.user.role === 'Manager') {
+    query = { role: 'Developer' };
+  }
+
+  const users = await User.find(query);
   res.status(200).json({ success: true, count: users.length, data: users });
 });
 

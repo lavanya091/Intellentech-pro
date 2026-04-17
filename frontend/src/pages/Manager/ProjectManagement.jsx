@@ -29,18 +29,26 @@ const ProjectManagement = () => {
   }, []);
 
   const fetchData = async () => {
+    setLoading(true);
+    
+    // Fetch Projects
     try {
-      const [projRes, userRes] = await Promise.all([
-        axios.get('/api/projects'),
-        axios.get('/api/users')
-      ]);
-      setProjects(projRes.data.data);
-      setDevelopers(userRes.data.data.filter(u => u.role === 'Developer'));
+      const res = await axios.get('/api/projects');
+      setProjects(res.data.data);
     } catch (err) {
-      console.error('Failed to fetch data');
-    } finally {
-      setLoading(false);
+      console.error('Failed to fetch projects');
     }
+
+    // Fetch Developers
+    try {
+      const res = await axios.get('/api/users');
+      // Filter for developers (though backend does it now, good to keep for safety)
+      setDevelopers(res.data.data.filter(u => u.role === 'Developer'));
+    } catch (err) {
+      console.error('Failed to fetch developers');
+    }
+
+    setLoading(false);
   };
 
   const handleCreateProject = async (e) => {
