@@ -10,10 +10,11 @@ const asyncHandler = require('../middleware/asyncHandler');
 // @access  Private/Admin
 exports.getUsers = asyncHandler(async (req, res, next) => {
   let query = {};
+  const requesterRole = req.user.role ? req.user.role.trim().toLowerCase() : '';
 
-  // If Manager, show all users with the Developer role
-  if (req.user.role === 'Manager') {
-    query = { role: 'Developer' };
+  // If Manager, show all users with the Developer role (flexible regex handles spaces/case)
+  if (requesterRole === 'manager') {
+    query = { role: { $regex: /^\s*developer\s*$/i } };
   }
 
   const users = await User.find(query);
