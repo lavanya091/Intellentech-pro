@@ -42,8 +42,8 @@ const ProjectManagement = () => {
     // Fetch Developers
     try {
       const res = await axios.get('/api/users');
-      // Filter for developers (though backend does it now, good to keep for safety)
-      setDevelopers(res.data.data.filter(u => u.role === 'Developer'));
+      // Case-insensitive filter for developers for maximum compatibility
+      setDevelopers(res.data.data.filter(u => u.role.toLowerCase() === 'developer'));
     } catch (err) {
       console.error('Failed to fetch developers');
     }

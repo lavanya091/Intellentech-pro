@@ -11,9 +11,9 @@ const asyncHandler = require('../middleware/asyncHandler');
 exports.getUsers = asyncHandler(async (req, res, next) => {
   let query = {};
 
-  // If Manager, only show Active Developers to prevent assignment to disabled accounts
+  // If Manager, show all users with the Developer role
   if (req.user.role === 'Manager') {
-    query = { role: 'Developer', status: 'Active' };
+    query = { role: 'Developer' };
   }
 
   const users = await User.find(query);
